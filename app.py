@@ -56,6 +56,8 @@ def processRequest(req):
         
         str =wikipedia.summary(person, sentences=2)
         data =json.loads(result)
+        print("Response:") 
+        print(str) 
         
         res ={
         "speech": str,
