@@ -50,13 +50,15 @@ def processRequest(req):
     elif req.get("result").get("action") == "wikipediaSearch":
         parameters = result.get("parameters")
         person=parameters.get("wiki_search")
+        str=wikipedia.summary(person, sentences=2)       
         res ={
-        "speech": wikipedia.summary(person, sentences=2),
-        "displayText": wikipedia.summary(person, sentences=2),
+        "speech": str, 
+        "displayText": str, 
         # "data": data,
         # "contextOut": [],
         "source": "apiai-weather-webhook-sample"
-        }
+       } 
+        return res
     else:
         return  {}  
 def makeYqlQuery(req):
