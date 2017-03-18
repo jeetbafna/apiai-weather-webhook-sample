@@ -48,11 +48,11 @@ def processRequest(req):
         res = makeWebhookResult(data)
         return res
     elif req.get("result").get("action") == "wikipediaSearch":
-        baseurl="https://en.eikipedia.org/wiki/"
+        baseurl="https://en.wikipedia.org/wiki/"
         parameters = req.get("result").get("parameters")
         person=parameters.get("wiki_search")
         wiki_url= baseurl+person+"&format=json"
-        result= urlopen(wiki_url).read
+        result= urlopen(wiki_url).read() 
         
         str =wikipedia.summary(person, sentences=2)
         data =json.loads(result)
