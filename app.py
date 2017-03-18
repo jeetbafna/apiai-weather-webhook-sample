@@ -52,10 +52,10 @@ def processRequest(req):
         parameters = req.get("result").get("parameters")
         person=parameters.get("wiki_search")
         wiki_url= baseurl+person+"&format=json"
-        result= urlopen(wiki_url)
+        result= urlopen(wiki_url).read
         
         str =wikipedia.summary(person, sentences=2)
-        data=json.loads(str)
+        data =json.loads(result)
         
         res ={
         "speech": str,
