@@ -48,19 +48,29 @@ def processRequest(req):
         res = makeWebhookResult(data)
         return res
     elif req.get("result").get("action") == "wikipediaSearch":
-        parameters = result.get("parameters")
+        baseurl="https://en.eikipedia.org/wiki/"
+        parameters = req.get("result").get("parameters")
         person=parameters.get("wiki_search")
-        str=wikipedia.summary(person, sentences=2)       
+        wiki_url= baseurl+person+"&format=json"
+        result= urlopen(wiki_url)
+        
+        str =wikipedia.summary(person, sentences=2)
+        data=json.loads(str)
+        
         res ={
-        "speech": str, 
-        "displayText": str, 
+        "speech": str,
+        "displayText": str,
         # "data": data,
         # "contextOut": [],
         "source": "apiai-weather-webhook-sample"
-       } 
+        }
+        
         return res
     else:
-        return  {}  
+        return{} 
+
+
+
 def makeYqlQuery(req):
     result = req.get("result")
     parameters = result.get("parameters")
