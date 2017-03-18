@@ -1,8 +1,8 @@
 #!/usr/bin/env python
+
 from __future__ import print_function
 from future.standard_library import install_aliases
 install_aliases()
-import wikipedia
 
 from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, Request
@@ -10,18 +10,18 @@ from urllib.error import HTTPError
 
 import json
 import os
-
+import wikipedia
 from flask import Flask
 from flask import request
 from flask import make_response
 
 # Flask app should start in global layout
 app = Flask(__name__)
-req = request.get_json(silent=True, force=True)
+
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    
+    req = request.get_json(silent=True, force=True)
 
     print("Request:")
     print(json.dumps(req, indent=4))
@@ -48,76 +48,54 @@ def processRequest(req):
         res = makeWebhookResult(data)
         return res
     elif req.get("result").get("action") == "wikipediaSearch":
-        baseurl= "http://en.wikipedia.org/wiki/"
-        yql_query = makeYqlQuery(req)
-        if yql_query is None:
-            return {}
-        #result = req.get("result")
-        #parameters = result.get("parameters")
-        #person=parameters.get("wiki_search")
-        #yql_url = baseurl + person + "&format=json"
-        #result = urlopen(yql_url).read()
-        data = yql_query
-        res = makeWebhookResult(data)
-        return res
-    else:
-        return{}
-        
-        
-
-
-def makeYqlQuery(req):
-    if req.get("result").get("action") == "yahooWeatherForecast":
-        result = req.get("result")
-        parameters = result.get("parameters")
-        city = parameters.get("geo-city")
-        if city is None:
-            return None
-
-        return "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text='" + city + "')"
-    elif req.get("result").get("action") == "wikipediaSearch":
-        result = req.get("result")
         parameters = result.get("parameters")
         person=parameters.get("wiki_search")
-        if person is None:
-            return None
-        return wikipedia.summary(person, sentences=2)
-            
-        
-        
+        res ={
+        "speech": wikipedia.summary(person, sentences=2),
+        "displayText": wikipedia.summary(person, sentences=2),
+        # "data": data,
+        # "contextOut": [],
+        "source": "apiai-weather-webhook-sample"
+        }
+    else:
+        return  {}  
+def makeYqlQuery(req):
+    result = req.get("result")
+    parameters = result.get("parameters")
+    city = parameters.get("geo-city")
+    if city is None:
+        return None
+
+    return "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text='" + city + "')"
 
 
 def makeWebhookResult(data):
-    if req.get("result").get("action") == "yahooWeatherForecast":
-        query = data.get('query')
-        if query is None:
-            return {}
+    query = data.get('query')
+    if query is None:
+        return {}
 
-        result = query.get('results')
-        if result is None:
-            return {}
+    result = query.get('results')
+    if result is None:
+        return {}
 
-        channel = result.get('channel')
-        if channel is None:
-            return {}
-    
+    channel = result.get('channel')
+    if channel is None:
+        return {}
 
-        item = channel.get('item')
-        location = channel.get('location')
-        units = channel.get('units')
-        if (location is None) or (item is None) or (units is None):
-            return {}
+    item = channel.get('item')
+    location = channel.get('location')
+    units = channel.get('units')
+    if (location is None) or (item is None) or (units is None):
+        return {}
 
-        condition = item.get('condition')
-        if condition is None:
-            return {}
+    condition = item.get('condition')
+    if condition is None:
+        return {}
 
     # print(json.dumps(item, indent=4))
 
-        speech = "Today in " + location.get('city') + ": " + condition.get('text') + \
+    speech = "Today in " + location.get('city') + ": " + condition.get('text') + \
              ", the temperature is " + condition.get('temp') + " " + units.get('temperature')
-    elif req.get("result").get("action") == "wikipediaSearch":
-        speech = data
 
     print("Response:")
     print(speech)
