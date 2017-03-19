@@ -8,6 +8,7 @@ from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 
+
 import json
 import os
 import wikipedia
@@ -48,14 +49,22 @@ def processRequest(req):
         res = makeWebhookResult(data)
         return res
     elif req.get("result").get("action") == "wikipediaSearch":
-        baseurl="https://en.wikipedia.org/wiki/"
+        baseurl="http://en.wikipedia.org/w/api.php?"
+	
         parameters = req.get("result").get("parameters")
         person=parameters.get("wiki_search")
-        wiki_url= baseurl+person+"&format=json"
-        result= urlopen(wiki_url).read() 
-        
+        # wiki_url= baseurl+person+"&format=json"
+        # result= urlopen(wiki_url).read() 
+	my_atts = {}
+	my_atts['action'] = 'query'  # action=query
+	my_atts['prop'] = 'info'     # prop=info
+	my_atts['format'] = 'json'   # format=json
+	my_atts['titles'] = person   # titles=Stanford%20University
+	
+        resp = requests.get(baseurl, params = my_atts)
+	data = resp.json()
         str =wikipedia.summary(person, sentences=2)
-        data =json.loads(result)
+        # data =json.loads(result)
         print("Response:") 
         print(str) 
         
